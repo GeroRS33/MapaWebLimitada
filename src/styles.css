@@ -404,6 +404,9 @@ body {
   font-size: 1.45rem;
   font-weight: 700;
   line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-close-btn {

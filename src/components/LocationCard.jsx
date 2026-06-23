@@ -5,6 +5,15 @@ import iconoTelefono from '../assets/icons/Icono-Telefono.svg';
 import iconoComoLlegar from '../assets/icons/Icono-ComoLlegar.svg';
 import iconoDepartamento from '../assets/icons/Icono-Departamento.svg';
 
+// Helper para calcular el tamaño de fuente responsivo del título según el largo del texto
+const getTitleFontSize = (name) => {
+  if (!name) return '1.45rem';
+  const length = name.length;
+  if (length <= 14) return '1.45rem';
+  const calculated = 1.45 - (length - 14) * 0.03;
+  return `${Math.max(0.95, calculated)}rem`;
+};
+
 export default function LocationCard({ location, onClose, isMobile }) {
   if (!location) return null;
 
@@ -300,7 +309,11 @@ export default function LocationCard({ location, onClose, isMobile }) {
             className="location-title-icon"
             id="location-title-icon-img"
           />
-          <h2 className="location-name" id="location-name-title">
+          <h2 
+            className="location-name" 
+            id="location-name-title"
+            style={{ fontSize: getTitleFontSize(currentLoc.nombre) }}
+          >
             {currentLoc.nombre}
           </h2>
         </div>
