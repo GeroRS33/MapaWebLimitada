@@ -54,19 +54,46 @@ export default function LocationCard({ location, onClose, isMobile }) {
 
   // Resetear al snap point low cuando se monta la tarjeta o cambia el local
   useEffect(() => {
+    let timerId;
+    let frame1Id;
+    let frame2Id;
+
     if (isMobile) {
-      requestAnimationFrame(() => {
-        if (!cardRef.current) return;
-        const snaps = getSnapPoints();
-        currentTranslateY.current = snaps.low;
-        setCurrentSnapPoint('low');
-        setIsTransitioning(false);
-        cardRef.current.style.transform = `translateY(${snaps.low}px)`;
+      setIsTransitioning(false);
+      if (cardRef.current) {
+        cardRef.current.style.transition = 'none';
+        cardRef.current.style.transform = 'translateY(100%)';
+      }
+
+      frame1Id = requestAnimationFrame(() => {
+        frame2Id = requestAnimationFrame(() => {
+          if (!cardRef.current) return;
+          const snaps = getSnapPoints();
+          currentTranslateY.current = snaps.low;
+          setCurrentSnapPoint('low');
+          
+          setIsTransitioning(true);
+          cardRef.current.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+          cardRef.current.style.transform = `translateY(${snaps.low}px)`;
+          
+          timerId = setTimeout(() => {
+            if (cardRef.current) {
+              cardRef.current.style.transition = '';
+            }
+          }, 350);
+        });
       });
+
+      return () => {
+        cancelAnimationFrame(frame1Id);
+        cancelAnimationFrame(frame2Id);
+        clearTimeout(timerId);
+      };
     } else {
       // En desktop limpiamos cualquier transformación
       if (cardRef.current) {
         cardRef.current.style.transform = '';
+        cardRef.current.style.transition = '';
       }
     }
   }, [isMobile, currentLoc.id]);
@@ -247,12 +274,14 @@ export default function LocationCard({ location, onClose, isMobile }) {
     : `location-card-desktop ${isExiting ? 'is-exiting' : ''} ${isChanging ? 'is-changing' : ''}`;
 
   const cardId = isMobile ? 'location-card-panel-mobile' : 'location-card-panel-desktop';
+  const cardStyle = isMobile ? { transform: 'translateY(100%)' } : undefined;
 
   return (
     <div 
       ref={cardRef}
       className={cardClassName} 
       id={cardId}
+      style={cardStyle}
       onTouchStart={isMobile ? handleTouchStart : undefined}
       onTouchMove={isMobile ? handleTouchMove : undefined}
       onTouchEnd={isMobile ? handleTouchEnd : undefined}
