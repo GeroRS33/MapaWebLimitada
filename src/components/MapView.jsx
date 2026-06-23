@@ -14,7 +14,8 @@ function MapController({ center, zoom }) {
   
   useEffect(() => {
     if (center) {
-      map.setView(center, zoom, {
+      const targetZoom = (zoom !== undefined && zoom !== null) ? zoom : map.getZoom();
+      map.setView(center, targetZoom, {
         animate: true,
         duration: 1.2
       });

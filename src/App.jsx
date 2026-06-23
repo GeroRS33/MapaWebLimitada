@@ -57,6 +57,15 @@ export default function App() {
     }
   };
 
+  // Seleccionar un local comercial haciendo clic en un marcador (pin) del mapa (preserva el zoom)
+  const handleMarkerClick = (local) => {
+    setSelectedLocation(local);
+    if (local.lat && local.lng) {
+      setMapCenter([local.lat, local.lng]);
+      setMapZoom(null); // Indica a MapController que debe usar el zoom actual del mapa
+    }
+  };
+
   // Cerrar la tarjeta informativa
   const handleCloseCard = () => {
     setSelectedLocation(null);
@@ -139,7 +148,7 @@ export default function App() {
               selectedLocation={selectedLocation}
               center={mapCenter}
               zoom={mapZoom}
-              onMarkerClick={handleSelectLocation}
+              onMarkerClick={handleMarkerClick}
             />
             <button 
               className="mobile-location-fab"
