@@ -1,0 +1,814 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --web-blue: #2E3192;
+  --web-blue-hover: #1e206b;
+  --text-white: #ffffff;
+  --bg-light: #F4F5F7;
+  --border-color: #E2E8F0;
+  --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  min-height: 100%;
+  height: 100dvh;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-light);
+  color: #1a1a1a;
+  overflow: hidden;
+  height: 100%;
+  min-height: 100%;
+  height: 100dvh;
+  width: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+  height: 100dvh;
+  width: 100%;
+}
+
+/* --- HEADER --- */
+.app-header {
+  background-color: var(--web-blue);
+  color: var(--text-white);
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.header-logo-container {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.header-logo {
+  height: 42px;
+  width: auto;
+}
+
+.header-title-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-title-icon {
+  width: 16px;
+  height: auto;
+}
+
+.header-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* --- SEARCH BAR SECTION --- */
+.search-section {
+  background-color: var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  z-index: 9;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 480px;
+}
+
+.search-input-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--text-white);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 4px 16px 4px 20px;
+  height: 48px;
+  box-shadow: var(--shadow-light);
+  transition: all 0.2s ease;
+}
+
+.search-input-container:focus-within {
+  border-color: var(--web-blue);
+  box-shadow: 0 0 0 3px rgba(46, 49, 146, 0.15);
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.search-input::placeholder {
+  color: #a0aec0;
+}
+
+.search-icon-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-icon-svg {
+  width: 18px;
+  height: 18px;
+  stroke: #718096;
+}
+
+/* Suggestions Dropdown */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background-color: var(--text-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 1001;
+  padding: 6px 0;
+}
+
+.suggestion-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.suggestion-item:hover {
+  background-color: #f7fafc;
+}
+
+.suggestion-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #1a202c;
+}
+
+.suggestion-details {
+  font-size: 0.78rem;
+  color: #718096;
+  margin-top: 2px;
+}
+
+/* Action Controls (Desktop) */
+.search-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: var(--web-blue);
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background-color: rgba(46, 49, 146, 0.05);
+}
+
+.action-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* --- MAP AREA --- */
+.map-container-wrapper {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  z-index: 1;
+}
+
+.map-instance {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+/* Map Counter Pill */
+.map-counter-pill {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  background-color: var(--text-white);
+  border-radius: 20px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--shadow-card);
+  z-index: 1000;
+  border: 1px solid var(--border-color);
+  pointer-events: none;
+}
+
+.counter-icon {
+  width: 14px;
+  height: auto;
+}
+
+.counter-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+/* Leaflet Overrides */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  background-color: var(--bg-light) !important;
+}
+
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  border-bottom: 1px solid var(--border-color) !important;
+  color: #4a5568 !important;
+}
+
+/* Custom Leaflet Marker Icon */
+.custom-leaflet-marker {
+  background: none;
+  border: none;
+}
+
+.custom-marker-svg {
+  filter: drop-shadow(0px 3px 4px rgba(0, 0, 0, 0.3));
+  transition: transform 0.22s ease-in-out, filter 0.22s ease-in-out;
+}
+
+.custom-marker-svg path {
+  fill: #2E3192;
+  transition: fill 0.22s ease-in-out;
+}
+
+.custom-marker-svg:hover {
+  transform: scale(1.15);
+}
+
+/* Selected state for pin */
+.custom-marker-svg.is-selected {
+  transform: scale(1.15);
+  filter: drop-shadow(0px 5px 8px rgba(0, 0, 0, 0.45));
+}
+
+.custom-marker-svg.is-selected path {
+  fill: #E98724;
+}
+
+/* Cluster styling */
+.custom-cluster-icon {
+  background-color: var(--web-blue);
+  color: var(--text-white);
+  border: 3px solid var(--text-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  width: 40px !important;
+  height: 40px !important;
+}
+
+/* --- LOCATION INFO CARD --- */
+.location-card-desktop {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 440px;
+  background-color: var(--web-blue);
+  color: var(--text-white);
+  border-radius: 24px;
+  border: 2px solid var(--text-white);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  padding: 32px;
+  overflow: hidden;
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Animation state for card exit in desktop */
+.location-card-desktop.is-exiting {
+  animation: slideOutRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Flex layout override for desktop header to support close button */
+.location-card-desktop .location-title-group {
+  width: auto;
+  flex: 1;
+  margin-right: 12px;
+}
+
+/* Transition for content switching in Desktop */
+.location-card-desktop .location-name,
+.location-card-desktop .info-text-container,
+.location-card-desktop .location-info-row,
+.location-card-desktop .schedule-left-content,
+.location-card-desktop .schedule-row,
+.location-card-desktop .schedule-title {
+  transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* When the local is changing, fade out and slightly shift down */
+.location-card-desktop.is-changing .location-name,
+.location-card-desktop.is-changing .info-text-container,
+.location-card-desktop.is-changing .location-info-row,
+.location-card-desktop.is-changing .schedule-left-content,
+.location-card-desktop.is-changing .schedule-row,
+.location-card-desktop.is-changing .schedule-title {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.location-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.location-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.location-title-icon {
+  width: 26px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.location-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.card-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  line-height: 1;
+}
+
+.card-close-btn:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.card-divider {
+  border: 0;
+  height: 2px;
+  background-color: var(--text-white);
+  margin-top: 10px;
+  margin-bottom: 24px;
+}
+
+.location-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 13px;
+  gap: 16px;
+}
+
+.info-text-container {
+  flex: 1;
+  text-align: right;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.info-icon {
+  width: 20px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+/* El icono de departamento (forma Uruguay) necesita más espacio */
+.info-icon--department {
+  width: 22px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* Warning sin coordenadas */
+.location-no-coords-warning {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 10px 14px;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #ffd54f;
+  margin-bottom: 8px;
+}
+
+/* --- SECCION DE HORARIOS --- */
+.location-schedule-section {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.schedule-flex-container {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+}
+
+.schedule-left-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.schedule-title {
+  font-size: 1rem;
+  font-weight: 400;
+  margin-bottom: 12px;
+  text-align: right;
+  color: var(--text-white);
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.schedule-table {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 10px 0;
+  gap: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.schedule-row:last-child {
+  border-bottom: none;
+}
+
+.schedule-day {
+  flex: 1;
+  text-align: left;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  font-weight: 300;
+}
+
+.schedule-time {
+  text-align: right;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.schedule-cal-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.schedule-right-timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.timeline-clock-wrapper {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.schedule-clock-icon {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text-white);
+}
+
+.timeline-line {
+  width: 2px;
+  background-color: var(--text-white);
+  flex: 1;
+  margin-top: 14px;
+  margin-bottom: 8px;
+}
+
+/* --- BOTONES DE ACCION --- */
+.location-card-buttons {
+  display: flex;
+  gap: 14px;
+  margin-top: 24px;
+  width: 100%;
+}
+
+.card-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 28px;
+  padding: 14px 20px;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: var(--text-white);
+  color: var(--web-blue);
+  border: none;
+  flex: 2;
+}
+
+#location-direction-link {
+  font-size: 0.85rem;
+}
+
+#location-call-link {
+  font-size: 0.85rem;
+}
+
+
+.btn-primary:hover {
+  background-color: var(--bg-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-white);
+  border: 2px solid var(--text-white);
+  flex: 1;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  width: 18px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* --- MOBILE BOTTOM SHEET --- */
+.location-card-mobile {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: auto;
+  max-height: 85vh;
+  background-color: var(--web-blue);
+  color: var(--text-white);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top: 2px solid var(--text-white);
+  border-left: 2px solid var(--text-white);
+  border-right: 2px solid var(--text-white);
+  border-bottom: none;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 1002;
+  padding: 12px 24px 24px 24px;
+  animation: slideUpMobile 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  touch-action: none;
+}
+
+.location-card-mobile.is-transitioning {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.location-card-mobile .location-card-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 8px;
+  touch-action: auto;
+}
+
+.mobile-drag-handle {
+  width: 40px;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  margin: 4px auto 12px auto;
+  display: block;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.mobile-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(calc(100% + 24px));
+    opacity: 0;
+  }
+}
+
+@keyframes slideUpMobile {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.mobile-location-fab {
+  display: none;
+}
+
+/* --- RESPONSIVE MEDIA QUERIES --- */
+@media (max-width: 768px) {
+  .app-header {
+    height: 60px;
+    padding: 0 16px;
+    justify-content: center;
+  }
+
+  .header-title-container {
+    display: none;
+  }
+
+  .search-section {
+    padding: 8px 16px;
+  }
+
+  .search-input-wrapper {
+    max-width: 100%;
+  }
+
+  .search-input-container {
+    height: 44px;
+  }
+
+  .search-actions {
+    display: none;
+  }
+
+  .map-counter-pill {
+    display: none;
+  }
+
+  .location-card-desktop {
+    display: none;
+  }
+
+  .mobile-location-fab {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background-color: var(--web-blue);
+    color: var(--text-white);
+    border: none;
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-family: var(--font-family);
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
+
+  .mobile-location-fab:active {
+    transform: scale(0.95);
+    background-color: var(--web-blue-hover);
+  }
+
+  .mobile-location-fab .fab-icon {
+    width: 16px;
+    height: 16px;
+    filter: brightness(0) invert(1);
+  }
+}
+
+@media (min-width: 769px) {
+  .location-card-mobile {
+    display: none;
+  }
+}
