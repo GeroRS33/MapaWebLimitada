@@ -741,6 +741,10 @@ body {
   display: none;
 }
 
+#mobile-use-my-location-fab {
+  z-index: 98;
+}
+
 /* --- RESPONSIVE MEDIA QUERIES --- */
 @media (max-width: 768px) {
   .app-header {
