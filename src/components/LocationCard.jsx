@@ -338,7 +338,11 @@ export default function LocationCard({ location, onClose, isMobile }) {
         {/* Dirección */}
         <div className="location-info-row" id="location-info-row-address">
           <span className="info-text-container" id="location-address-text">
-            {currentLoc.direccion || 'Sin dirección'}
+            {currentLoc.direccion 
+              ? (currentLoc.ciudad && String(currentLoc.ciudad).trim() !== '' 
+                  ? `${currentLoc.direccion}, ${currentLoc.ciudad}` 
+                  : currentLoc.direccion)
+              : 'Sin dirección'}
           </span>
           <img
             src={iconoDireccion}
