@@ -131,7 +131,12 @@ export function processRawExcelData(data, label = 'UNKNOWN') {
   const colMap = {};
   headerRow.forEach((val, idx) => {
     if (val !== null && val !== undefined) {
-      colMap[normalizeKey(val)] = idx;
+      const norm = normalizeKey(val);
+      colMap[norm] = idx;
+      // Robustez: si contiene "local activo", lo asociamos a la clave genérica "local activo"
+      if (norm.includes('local activo')) {
+        colMap['local activo'] = idx;
+      }
     }
   });
 
