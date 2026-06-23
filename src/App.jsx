@@ -19,6 +19,7 @@ export default function App() {
   const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
 
   // Cargar datos de locales al iniciar la aplicación
   useEffect(() => {
@@ -119,6 +120,7 @@ export default function App() {
         onSelectLocation={handleSelectLocation}
         onGoToMontevideo={handleGoToMontevideo}
         onUseMyLocation={handleUseMyLocation}
+        onDropdownVisibleChange={setSearchDropdownOpen}
       />
       
       <div 
@@ -150,20 +152,22 @@ export default function App() {
               zoom={mapZoom}
               onMarkerClick={handleMarkerClick}
             />
-            <button 
-              className="mobile-location-fab"
-              onClick={handleUseMyLocation}
-              id="mobile-use-my-location-fab"
-              aria-label="Usar mi Ubicación"
-            >
-              <span>Usar mi Ubicación</span>
-              <img 
-                src={iconoMiUbicacion} 
-                alt="Ubicación" 
-                className="fab-icon" 
-                id="mobile-use-my-location-fab-icon"
-              />
-            </button>
+            {!searchDropdownOpen && (
+              <button 
+                className="mobile-location-fab"
+                onClick={handleUseMyLocation}
+                id="mobile-use-my-location-fab"
+                aria-label="Usar mi Ubicación"
+              >
+                <span>Usar mi Ubicación</span>
+                <img 
+                  src={iconoMiUbicacion} 
+                  alt="Ubicación" 
+                  className="fab-icon" 
+                  id="mobile-use-my-location-fab-icon"
+                />
+              </button>
+            )}
           </>
         )}
 

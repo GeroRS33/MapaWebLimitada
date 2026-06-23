@@ -94,7 +94,7 @@ body {
   justify-content: space-between;
   gap: 20px;
   position: relative;
-  z-index: 10;
+  z-index: 100;
 }
 
 .search-input-wrapper {

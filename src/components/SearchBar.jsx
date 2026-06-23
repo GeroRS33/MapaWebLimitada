@@ -5,12 +5,20 @@ export default function SearchBar({
   locations, 
   onSelectLocation, 
   onGoToMontevideo, 
-  onUseMyLocation 
+  onUseMyLocation,
+  onDropdownVisibleChange
 }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const containerRef = useRef(null);
+
+  // Notificar al padre si las sugerencias están visibles
+  useEffect(() => {
+    if (onDropdownVisibleChange) {
+      onDropdownVisibleChange(showDropdown && suggestions.length > 0);
+    }
+  }, [showDropdown, suggestions, onDropdownVisibleChange]);
 
   // Filtrar sugerencias basándose en el query de búsqueda
   useEffect(() => {
