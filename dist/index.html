@@ -1,15 +1,36 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/assets/LogoWeb-BMnjMjk7.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Encuentra los puntos de venta oficiales de WEB Ltda. en Uruguay. Mapa interactivo de instaladores, ferreterías y comercios." />
-    <title>Puntos de Venta - WEB Ltda.</title>
-    <script type="module" crossorigin src="/assets/index-DJoAwX18.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-VRtSlO4T.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  
+  <!-- theme-color settings for Safari/Android/Chrome, supports dark/light mode mapping to the institutional blue -->
+  <meta name="theme-color" content="#2E3192" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#2E3192" media="(prefers-color-scheme: dark)" />
+
+  <!-- iOS-specific PWA and browser integration -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Mapa Web" />
+
+  <!-- Inline CSS to style background color immediately on HTML parsing to prevent white flashes and color sampling issues in Safari -->
+  <style>
+    html, body {
+      background-color: #2E3192;
+    }
+  </style>
+
+  <link rel="icon" type="image/svg+xml" href="/assets/LogoWeb-BMnjMjk7.svg" />
+  <meta name="description"
+    content="Encuentra los puntos de venta oficiales de WEB Ltda. en Uruguay. Mapa interactivo de instaladores, ferreterías y comercios." />
+  <title>Mapa - Web LTDA</title>
+  <script type="module" crossorigin src="/assets/index-DTkOMSbf.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-ByJkNzso.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
 </html>
