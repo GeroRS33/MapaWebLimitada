@@ -1,5 +1,5 @@
 import React from 'react';
-import logoWeb from '../assets/icons/Logo_MapaWeb.svg';
+import logoMapaWeb from '../assets/icons/Logo_MapaWeb.svg';
 import iconoUbicacion from '../assets/icons/Icono-Ubicacion.svg';
 
 export default function Header() {
@@ -7,7 +7,7 @@ export default function Header() {
     <header className="app-header" id="app-header">
       <div className="header-logo-container">
         <img
-          src={logoWeb}
+          src={logoMapaWeb}
           alt="WEB logo"
           className="header-logo"
           id="header-logo-img"
