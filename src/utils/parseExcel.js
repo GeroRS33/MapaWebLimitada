@@ -83,9 +83,20 @@ export function processRawExcelData(data, label = 'UNKNOWN') {
       const sabados = row.Sabados || row.Sábado || row.sabados || null;
       const domingos = row.Domingos || row.Domingo || row.domingos || null;
 
-      const lat = row.Latitud !== undefined ? Number(row.Latitud) : (row.lat !== undefined ? Number(row.lat) : NaN);
-      const lng = row.Longitud !== undefined ? Number(row.Longitud) : (row.lng !== undefined ? Number(row.lng) : NaN);
-      const hasCoords = !isNaN(lat) && !isNaN(lng);
+      const latRaw = row.Latitud !== undefined && row.Latitud !== null ? String(row.Latitud).trim() : (row.lat !== undefined && row.lat !== null ? String(row.lat).trim() : '');
+      const lngRaw = row.Longitud !== undefined && row.Longitud !== null ? String(row.Longitud).trim() : (row.lng !== undefined && row.lng !== null ? String(row.lng).trim() : '');
+      
+      let lat = NaN;
+      let lng = NaN;
+      let hasCoords = false;
+
+      if (latRaw !== '' && lngRaw !== '') {
+        lat = Number(latRaw);
+        lng = Number(lngRaw);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          hasCoords = true;
+        }
+      }
 
       if (hasCoords) {
         processed.push({
@@ -103,7 +114,7 @@ export function processRawExcelData(data, label = 'UNKNOWN') {
           hasCoordinates: true
         });
       } else {
-        console.warn(`⚠️ [WARNING] El local "${nombre}" fue ignorado en el mapa porque no tiene coordenadas válidas.`);
+        console.warn(`Se omitió el local '${nombre}' porque no tiene coordenadas válidas.`);
       }
     });
     return processed;
@@ -186,13 +197,17 @@ export function processRawExcelData(data, label = 'UNKNOWN') {
     let lng = NaN;
     let hasCoords = false;
 
-    if (coordenadasRaw) {
+    if (coordenadasRaw && String(coordenadasRaw).trim() !== '') {
       const parts = String(coordenadasRaw).split(',');
       if (parts.length === 2) {
-        lat = Number(parts[0].trim());
-        lng = Number(parts[1].trim());
-        if (!isNaN(lat) && !isNaN(lng)) {
-          hasCoords = true;
+        const latPart = parts[0].trim();
+        const lngPart = parts[1].trim();
+        if (latPart !== '' && lngPart !== '') {
+          lat = Number(latPart);
+          lng = Number(lngPart);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            hasCoords = true;
+          }
         }
       }
     }
@@ -215,7 +230,7 @@ export function processRawExcelData(data, label = 'UNKNOWN') {
     if (hasCoords) {
       processed.push(item);
     } else {
-      console.warn(`⚠️ [WARNING] El local "${nombre}" fue ignorado en el mapa porque no tiene coordenadas válidas (Coordenadas raw: "${coordenadasRaw}").`);
+      console.warn(`Se omitió el local '${nombre}' porque no tiene coordenadas válidas.`);
     }
   }
 
