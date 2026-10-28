@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useCallback } from 'react';
 import { Marker } from 'react-leaflet';
 import L from 'leaflet';
 
-export default function LocationMarker({ location, isSelected, onClick }) {
+export default function LocationMarker({ location, isSelected, onClick, onRegisterMarker }) {
   if (!location.lat || !location.lng) return null;
 
   // Memorizar el DivIcon para evitar recreaciones innecesarias
@@ -20,9 +20,28 @@ export default function LocationMarker({ location, isSelected, onClick }) {
     });
   }, [isSelected]);
 
+  const markerRef = useRef(null);
+
+  const handleRef = useCallback((markerInstance) => {
+    if (markerInstance) {
+      markerRef.current = markerInstance;
+      markerInstance.locationId = location.id;
+      if (onRegisterMarker) {
+        onRegisterMarker(location.id, markerInstance);
+      }
+    } else {
+      if (markerRef.current && onRegisterMarker) {
+        onRegisterMarker(location.id, null);
+      }
+      markerRef.current = null;
+    }
+  }, [location.id, onRegisterMarker]);
+
   return (
     <Marker
+      ref={handleRef}
       position={[location.lat, location.lng]}
+      locationId={location.id}
       icon={markerIcon}
       eventHandlers={{
         click: () => {

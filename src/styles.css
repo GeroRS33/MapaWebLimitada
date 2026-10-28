@@ -329,6 +329,12 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   width: 40px !important;
   height: 40px !important;
+  transition: background-color 0.2s ease;
+}
+
+/* Cluster que contiene el local seleccionado */
+.custom-cluster-icon.is-selected {
+  background-color: #E98724 !important;
 }
 
 /* --- LOCATION INFO CARD --- */
