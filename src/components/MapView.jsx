@@ -25,24 +25,28 @@ function MapController({
   center, 
   zoom, 
   searchSelection, 
+  zoneSelection,
   markersMapRef, 
   clusterGroupRef 
 }) {
   const map = useMap();
   const lastHandledSearchRef = useRef(null);
+  const lastHandledZoneRef = useRef(null);
 
   // 1. Manejo de cambios estándar de center/zoom (ej. Botón Ir a Montevideo, Usar mi ubicación, Clic en pin)
   useEffect(() => {
-    if (center && (!searchSelection || searchSelection === lastHandledSearchRef.current)) {
+    if (center && 
+        (!searchSelection || searchSelection === lastHandledSearchRef.current) &&
+        (!zoneSelection || zoneSelection === lastHandledZoneRef.current)) {
       const targetZoom = (zoom !== undefined && zoom !== null) ? zoom : map.getZoom();
       map.setView(center, targetZoom, {
         animate: true,
         duration: 1.2
       });
     }
-  }, [center, zoom, map]);
+  }, [center, zoom, map, searchSelection, zoneSelection]);
 
-  // 2. Manejo inteligente de selección desde búsqueda
+  // 2. Manejo inteligente de selección desde búsqueda de comercios
   useEffect(() => {
     if (!searchSelection || !searchSelection.location) return;
     if (searchSelection === lastHandledSearchRef.current) return;
@@ -132,6 +136,39 @@ function MapController({
     };
   }, [searchSelection, map, markersMapRef, clusterGroupRef]);
 
+  // 3. Manejo de selección de zonas geográficas (Departamentos, Barrios, Ciudades, Localidades)
+  useEffect(() => {
+    if (!zoneSelection || !zoneSelection.zone) return;
+    if (zoneSelection === lastHandledZoneRef.current) return;
+    lastHandledZoneRef.current = zoneSelection;
+
+    const { zone } = zoneSelection;
+    const clusterGroup = clusterGroupRef.current;
+
+    // Si había un cluster spiderfied anteriormente, replegarlo
+    if (clusterGroup && clusterGroup._spiderfied) {
+      clusterGroup._spiderfied.unspiderfy();
+    }
+
+    if (zone.bounds) {
+      // Encuadrar límites geográficos (Departamentos, Barrios) con fitBounds
+      const maxZoom = zone.type === 'departamento' ? 10 : 16;
+      map.fitBounds(zone.bounds, {
+        padding: [30, 30],
+        maxZoom,
+        animate: true,
+        duration: 1.2
+      });
+    } else if (zone.lat && zone.lng) {
+      // Centrar con zoom adaptativo para ciudades y localidades
+      const targetZoom = zone.zoom || 14;
+      map.setView([zone.lat, zone.lng], targetZoom, {
+        animate: true,
+        duration: 1.2
+      });
+    }
+  }, [zoneSelection, map, clusterGroupRef]);
+
   return null;
 }
 
@@ -174,7 +211,8 @@ function MapResizeHandler() {
 export default function MapView({ 
   locations, 
   selectedLocation, 
-  searchSelection,
+  searchSelection, 
+  zoneSelection,
   center, 
   zoom, 
   onMarkerClick 
@@ -271,6 +309,7 @@ export default function MapView({
           center={center} 
           zoom={zoom} 
           searchSelection={searchSelection}
+          zoneSelection={zoneSelection}
           markersMapRef={markersMapRef}
           clusterGroupRef={clusterGroupRef}
         />

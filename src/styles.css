@@ -169,27 +169,60 @@ body {
 
 .suggestion-item {
   display: flex;
-  flex-direction: column;
-  padding: 10px 20px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 16px;
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
 
-.suggestion-item:hover {
-  background-color: #f7fafc;
+.suggestion-item:hover,
+.suggestion-item.is-active {
+  background-color: #F4F6FB;
+}
+
+.suggestion-icon-wrapper {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background-color: #EEF0F8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #2E3192;
+}
+
+.suggestion-icon-wrapper svg {
+  display: block;
+}
+
+.suggestion-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
 }
 
 .suggestion-name {
   font-weight: 500;
   font-size: 0.9rem;
   color: #1a202c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .suggestion-details {
   font-size: 0.78rem;
   color: #718096;
   margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 
 /* Action Controls (Desktop) */
 .search-actions {

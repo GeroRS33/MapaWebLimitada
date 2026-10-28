@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import iconoMiUbicacion from '../assets/icons/Icono-MiUbicacion.svg';
+import { searchCombined } from '../utils/searchEngine';
 
 export default function SearchBar({ 
   locations, 
   onSelectLocation, 
+  onSelectZone,
   onGoToMontevideo, 
   onUseMyLocation,
   onDropdownVisibleChange
@@ -11,6 +13,7 @@ export default function SearchBar({
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef(null);
 
   // Notificar al padre si las sugerencias están visibles
@@ -20,32 +23,17 @@ export default function SearchBar({
     }
   }, [showDropdown, suggestions, onDropdownVisibleChange]);
 
-  // Filtrar sugerencias basándose en el query de búsqueda
+  // Filtrar sugerencias combinadas basándose en el query de búsqueda
   useEffect(() => {
     if (query.trim().length < 1) {
       setSuggestions([]);
+      setActiveIndex(-1);
       return;
     }
 
-    const cleanQuery = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    
-    // Filtrar locales por Nombre, Dirección, Localidad/Ciudad, Departamento
-    const filtered = locations.filter(loc => {
-      // Ignorar locales sin nombre
-      if (!loc.nombre) return false;
-
-      const nombre = (loc.nombre || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      const direccion = (loc.direccion || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      const ciudad = (loc.ciudad || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      const departamento = (loc.departamento || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-      return nombre.includes(cleanQuery) || 
-             direccion.includes(cleanQuery) || 
-             ciudad.includes(cleanQuery) || 
-             departamento.includes(cleanQuery);
-    });
-
-    setSuggestions(filtered.slice(0, 6)); // Mostrar máximo 6 sugerencias
+    const results = searchCombined(query, locations);
+    setSuggestions(results);
+    setActiveIndex(-1);
   }, [query, locations]);
 
   // Manejar el clic fuera del buscador para cerrar las sugerencias
@@ -53,22 +41,52 @@ export default function SearchBar({
     function handleClickOutside(event) {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
         setShowDropdown(false);
+        setActiveIndex(-1);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelect = (local) => {
-    onSelectLocation(local);
-    setQuery(local.nombre);
+  const handleSelect = (item) => {
+    if (item.isGeoZone) {
+      if (onSelectZone) {
+        onSelectZone(item);
+      }
+      setQuery(item.name);
+    } else {
+      if (onSelectLocation) {
+        onSelectLocation(item);
+      }
+      setQuery(item.nombre);
+    }
     setShowDropdown(false);
+    setActiveIndex(-1);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (suggestions.length > 0) {
-      handleSelect(suggestions[0]);
+      if (activeIndex >= 0 && activeIndex < suggestions.length) {
+        handleSelect(suggestions[activeIndex]);
+      } else {
+        handleSelect(suggestions[0]);
+      }
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (!showDropdown || suggestions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+    } else if (e.key === 'Escape') {
+      setShowDropdown(false);
+      setActiveIndex(-1);
     }
   };
 
@@ -87,7 +105,12 @@ export default function SearchBar({
               setShowDropdown(true);
             }}
             onFocus={() => setShowDropdown(true)}
+            onKeyDown={handleKeyDown}
             autoComplete="off"
+            role="combobox"
+            aria-expanded={showDropdown && suggestions.length > 0}
+            aria-controls="search-suggestions-dropdown"
+            aria-autocomplete="list"
           />
           <button type="submit" className="search-icon-btn" id="search-submit-btn" aria-label="Buscar">
             <svg 
@@ -106,22 +129,67 @@ export default function SearchBar({
         </div>
 
         {showDropdown && suggestions.length > 0 && (
-          <div className="search-suggestions" id="search-suggestions-dropdown">
-            {suggestions.map((local) => (
-              <div
-                key={local.id}
-                className="suggestion-item"
-                onClick={() => handleSelect(local)}
-                id={`suggestion-item-${local.id}`}
-              >
-                <span className="suggestion-name">{local.nombre}</span>
-                <span className="suggestion-details">
-                  {local.direccion ? `${local.direccion}, ` : ''}
-                  {local.ciudad ? `${local.ciudad}, ` : ''}
-                  {local.departamento || ''}
-                </span>
-              </div>
-            ))}
+          <div 
+            className="search-suggestions" 
+            id="search-suggestions-dropdown"
+            role="listbox"
+          >
+            {suggestions.map((item, index) => {
+              const isSelected = index === activeIndex;
+              if (item.isGeoZone) {
+                return (
+                  <div
+                    key={`zone-${item.id}`}
+                    className={`suggestion-item suggestion-item-geo ${isSelected ? 'is-active' : ''}`}
+                    onClick={() => handleSelect(item)}
+                    id={`suggestion-zone-${item.id}`}
+                    role="option"
+                    aria-selected={isSelected}
+                  >
+                    <div className="suggestion-icon-wrapper" aria-hidden="true">
+                      {item.type === 'departamento' ? (
+                        <svg width="18" height="18" viewBox="0 0 283 309" fill="currentColor">
+                          <path d="M72.6759 1.02414C73.9343 0.239276 75.4534 0.0620694 76.936 0.0229727C77.2471 0.0147694 77.5582 0.00826173 77.8695 0.00325445C83.0123 -0.0794905 88.1394 1.41271 92.0784 4.72019C95.123 7.27663 97.864 10.1489 100.209 13.4295C102.144 16.1361 106.03 20.1546 108.359 22.5038C113.815 28.0061 120.406 30.0849 123.518 37.8141C124.884 40.6502 129.675 42.6564 132.049 48.0318C135.237 55.2504 136.88 52.6101 136.962 61.4205C136.963 61.5261 137.079 61.5974 137.169 61.5418C140.94 59.1581 144.455 55.7646 148.245 53.5876C149.311 52.9752 150.042 51.8904 150.186 50.6693C150.445 48.4723 152.883 47.7143 154.505 49.2195C158.371 52.8095 163.889 58.3666 164.811 60.0041C167.821 65.3455 168.973 68.2252 170.993 70.5737C175.556 75.8793 183.03 77.2664 188.992 80.9307C192.263 82.9409 195.859 84.2508 199.682 84.6042C206.146 85.2016 209.538 86.7687 214.387 92.8747C215.065 93.7288 215.33 94.8809 215.058 95.9372C214.6 97.7191 215.316 99.5657 216.838 100.599C221.909 104.039 225.942 108.289 231.267 111.518C232.123 112.038 233.797 113.241 234.935 113.468C235.212 113.523 235.472 113.367 235.634 113.135C235.767 112.945 235.966 112.803 236.195 112.839C237.84 113.097 242.18 116.308 243.195 117.153C245.243 118.861 246.937 121.723 249.014 123.387C249.799 124.017 252.006 124.353 253.275 124.765C253.445 124.82 253.562 124.972 253.585 125.15C253.601 125.276 253.567 125.403 253.49 125.504C253.315 125.736 253.198 125.893 253.088 126.062C252.781 126.534 252.744 127.13 252.936 127.659C253.749 129.894 255.165 132.479 255.922 134.606C258.65 142.254 258.512 145.2 264.723 149.984C265.128 150.297 265.656 150.356 266.096 150.094C266.935 149.596 268.032 150.079 268.287 151.02C270.331 158.567 276.741 155.541 281.772 160.358C282.163 160.732 282.396 161.111 282.5 161.493C284.161 167.561 278.512 173.881 273.266 177.355C269.47 179.868 264.483 181.472 261.55 184.953C260.533 186.16 259.59 187.404 258.878 188.768C258.788 188.94 258.705 189.114 258.626 189.289C256.861 193.226 258.78 197.832 260.152 201.922C261.334 204.74 260.301 209.411 261.111 212.07C261.787 214.297 262.413 216.362 262.98 218.423C264.275 223.127 268.139 227.388 271.206 231.183C271.329 231.333 271.316 231.554 271.179 231.691C266.66 236.226 265.571 238.628 264.543 245.168C262.996 255.007 253.387 256.618 249.92 266.057C249.64 266.819 249.62 267.584 249.877 268.354C250.54 270.336 249.82 272.579 247.993 273.595C242.466 276.668 237.108 279.4 232.607 284.383C230.651 286.553 229.78 292.188 226.104 289.468C225.08 288.712 224.623 288.179 224.677 287.04C224.691 286.761 224.789 286.487 224.984 286.286C225.073 286.194 225.167 286.111 225.266 286.036C226.13 285.381 226.547 284.323 225.895 283.458C225.377 282.772 224.392 282.515 223.7 283.024C222.196 284.129 220.798 285.368 219.523 286.727C218.586 287.725 219.231 289.301 220.581 289.531C222.055 289.781 222.452 291.56 221.163 292.318C218.355 293.969 215.145 295.307 212.517 296.727C208.244 299.032 204.906 300.904 200.413 302.796C198.2 303.858 195.096 305.835 192.712 306.412C192.053 306.573 191.159 305.814 190.618 305.404L190.505 305.318C190.403 305.239 190.261 305.235 190.154 305.308C190.064 305.37 190.012 305.478 190.032 305.585C190.08 305.843 190.169 305.997 190.314 306.143C190.759 306.593 190.916 307.225 190.514 307.713C190.412 307.836 190.305 307.962 190.195 308.087C189.469 308.915 188.191 308.947 187.33 308.261C185.166 306.539 182.942 305.31 180.622 304.767C175.266 303.514 169.699 300.66 164.362 299.329C162.391 298.837 159.842 299.075 155.498 298.565C149.461 297.858 141.476 296.032 135.859 300.096C130.838 303.727 127.453 305.14 121.935 307.45C121.298 307.712 120.565 306.679 119.671 305.749C118.471 304.501 116.87 305.734 115.139 305.758C113.637 305.78 111.649 304.375 109.989 302.94C108.86 301.964 109.54 300.454 110.537 299.343C110.978 298.852 110.801 298.071 110.191 297.819C108.104 296.958 103.579 296.988 101.606 296.204C96.6747 294.245 91.973 293.281 86.9506 291.276C80.5183 288.709 75.5044 281.476 70.7746 277.296C66.9358 273.906 48.8517 275.222 43.6455 275.545C43.5276 275.552 43.404 275.562 43.2751 275.575C36.0172 276.29 31.0266 273.989 26.478 268.288C24.2239 265.463 20.7965 262.083 17.9918 259.363C17.3751 258.765 16.6087 258.332 15.76 258.2C15.6446 258.182 15.5308 258.165 15.4183 258.15C13.1509 257.844 11.701 256.088 10.9566 253.924C7.39691 243.585 -0.330615 235.111 0.0109622 224.182C0.196364 218.249 0.683204 212.298 1.19823 206.983C1.4069 204.829 3.14647 203.109 3.38564 201.063C3.39703 200.965 3.40789 200.868 3.41826 200.77C4.07222 194.626 7.4466 190.516 12.9685 187.743C17.1613 185.637 17.2479 179.65 16.3642 175.042C15.3692 169.854 14.7417 164.5 13.9349 159.399C13.2514 155.081 11.7513 149.899 12.3901 145.562C12.9092 142.037 17.3233 140.443 16.8598 136.346C16.4924 133.099 14.5352 131.337 13.6936 128.321C13.1322 125.574 14.5727 120.926 14.1497 117.683C13.8426 115.328 12.4186 113.625 12.4316 111.578C12.4445 109.515 17.361 108.121 18.4494 106.978C20.6174 104.701 22.6856 97.5879 23.3688 93.3259C23.5722 92.0569 23.2193 90.775 22.3569 89.8221C22.0459 89.4786 21.7097 89.1262 21.362 88.7737C19.5746 86.9617 19.4587 84.0913 21.5259 82.6064C22.6744 81.7813 23.4009 80.4785 23.7625 79.1114C24.2574 77.2402 25.1356 75.5444 25.9258 73.5415C27.7656 68.8784 29.6382 62.4936 29.9286 57.4859C29.9654 56.8537 29.7696 55.1316 29.5782 53.6324C29.4258 52.4379 30.317 51.3656 31.5202 51.3189C32.6208 51.2762 33.5001 50.3807 33.5197 49.2795C33.6014 44.6807 33.6969 38.5937 32.1337 34.9154C31.2073 32.7356 28.782 29.2731 29.1878 26.7631C29.6887 23.6633 35.3409 21.1631 37.7888 19.3028C41.6232 16.389 43.9327 14.4951 43.2969 9.14613C43.0419 7.00007 45.2516 5.0352 46.1684 6.99227C46.7847 8.30799 46.6911 10.2223 47.5861 11.7513C48.3465 13.0497 51.1073 10.7997 52.4783 11.2349C53.6331 11.6016 53.6928 11.9328 54.3351 12.7347C54.466 12.8983 54.6671 12.9881 54.8767 12.9861C55.0859 12.9842 55.2837 12.8902 55.4174 12.7292L55.6967 12.3928C55.9842 12.0466 56.4 11.8296 56.8498 11.8185C57.7048 11.7974 58.7494 11.8261 59.8566 11.8694C63.4057 12.0084 66.4027 9.79379 68.023 6.63303C69.1817 4.37259 70.6541 2.28517 72.6759 1.02414Z"/>
+                        </svg>
+                      ) : (
+                        <svg width="16" height="16" viewBox="0 0 20 25" fill="currentColor">
+                          <path d="M7.86207 22.9962C8.5317 23.5487 9.23007 24.0536 9.945 24.5465C10.6615 24.0602 11.3564 23.5429 12.0279 22.9962C13.1473 22.077 14.2007 21.0805 15.1805 20.0138C17.4391 17.5441 19.89 13.9639 19.89 9.945C19.89 8.639 19.6328 7.3458 19.133 6.13921C18.6332 4.93263 17.9007 3.8363 16.9772 2.91282C16.0537 1.98934 14.9574 1.2568 13.7508 0.757018C12.5442 0.257235 11.251 0 9.945 0C8.639 0 7.3458 0.257235 6.13921 0.757018C4.93263 1.2568 3.8363 1.98934 2.91282 2.91282C1.98934 3.8363 1.2568 4.93263 0.757018 6.13921C0.257235 7.3458 -1.94609e-08 8.639 0 9.945C0 13.9639 2.45089 17.543 4.70951 20.0138C5.68923 21.0808 6.74267 22.0767 7.86207 22.9962ZM9.945 13.5363C8.99254 13.5363 8.07909 13.1579 7.4056 12.4844C6.73211 11.8109 6.35375 10.8975 6.35375 9.945C6.35375 8.99254 6.73211 8.07909 7.4056 7.4056C8.07909 6.73211 8.99254 6.35375 9.945 6.35375C10.8975 6.35375 11.8109 6.73211 12.4844 7.4056C13.1579 8.07909 13.5363 8.99254 13.5363 9.945C13.5363 10.8975 13.1579 11.8109 12.4844 12.4844C11.8109 13.1579 10.8975 13.5363 9.945 13.5363Z"/>
+                        </svg>
+                      )}
+                    </div>
+                    <div className="suggestion-content">
+                      <span className="suggestion-name">{item.name}</span>
+                      <span className="suggestion-details">
+                        {item.type === 'departamento' ? 'Departamento' : `${item.label} · ${item.dept}`}
+                      </span>
+                    </div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div
+                    key={`store-${item.id}`}
+                    className={`suggestion-item suggestion-item-store ${isSelected ? 'is-active' : ''}`}
+                    onClick={() => handleSelect(item)}
+                    id={`suggestion-store-${item.id}`}
+                    role="option"
+                    aria-selected={isSelected}
+                  >
+                    <div className="suggestion-icon-wrapper" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 23 21" fill="currentColor">
+                        <path d="M1.27778 2.55556V0H21.7222V2.55556H1.27778ZM1.27778 20.4444V12.7778H0V10.2222L1.27778 3.83333H21.7222L23 10.2222V12.7778H21.7222V20.4444H19.1667V12.7778H14.0556V20.4444H1.27778ZM3.83333 17.8889H11.5V12.7778H3.83333V17.8889Z"/>
+                      </svg>
+                    </div>
+                    <div className="suggestion-content">
+                      <span className="suggestion-name">{item.nombre}</span>
+                      <span className="suggestion-details">
+                        Punto de venta {item.ciudad ? `· ${item.ciudad}` : (item.departamento ? `· ${item.departamento}` : '')}
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+            })}
           </div>
         )}
       </form>

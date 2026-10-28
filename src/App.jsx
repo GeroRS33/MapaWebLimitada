@@ -21,6 +21,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
   const [searchSelection, setSearchSelection] = useState(null);
+  const [zoneSelection, setZoneSelection] = useState(null);
 
   // Cargar datos de locales al iniciar la aplicación
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function App() {
   // Seleccionar un local comercial desde la barra de búsqueda
   const handleSelectLocation = (local) => {
     setSelectedLocation(local);
+    setZoneSelection(null);
     if (local.lat && local.lng) {
       setSearchSelection({
         location: local,
@@ -61,10 +63,21 @@ export default function App() {
     }
   };
 
+  // Seleccionar una zona geográfica (departamento, ciudad, localidad o barrio)
+  const handleSelectZone = (zone) => {
+    setSelectedLocation(null);
+    setSearchSelection(null);
+    setZoneSelection({
+      zone,
+      timestamp: Date.now()
+    });
+  };
+
   // Seleccionar un local comercial haciendo clic en un marcador (pin) del mapa (preserva el zoom)
   const handleMarkerClick = (local) => {
     setSelectedLocation(local);
     setSearchSelection(null);
+    setZoneSelection(null);
     if (local.lat && local.lng) {
       setMapCenter([local.lat, local.lng]);
       setMapZoom(null); // Indica a MapController que debe usar el zoom actual del mapa
@@ -75,18 +88,23 @@ export default function App() {
   const handleCloseCard = () => {
     setSelectedLocation(null);
     setSearchSelection(null);
+    setZoneSelection(null);
   };
 
   // Botón rápido: Ir a Montevideo
   const handleGoToMontevideo = () => {
+    setSelectedLocation(null);
     setSearchSelection(null);
+    setZoneSelection(null);
     setMapCenter(MONTEVIDEO_CENTER);
     setMapZoom(CITY_ZOOM);
   };
 
   // Botón rápido: Usar mi ubicación actual
   const handleUseMyLocation = () => {
+    setSelectedLocation(null);
     setSearchSelection(null);
+    setZoneSelection(null);
     if (!navigator.geolocation) {
       alert('La geolocalización no está soportada por tu navegador.');
       return;
@@ -125,6 +143,7 @@ export default function App() {
       <SearchBar 
         locations={locations}
         onSelectLocation={handleSelectLocation}
+        onSelectZone={handleSelectZone}
         onGoToMontevideo={handleGoToMontevideo}
         onUseMyLocation={handleUseMyLocation}
         onDropdownVisibleChange={setSearchDropdownOpen}
@@ -156,6 +175,7 @@ export default function App() {
               locations={locations}
               selectedLocation={selectedLocation}
               searchSelection={searchSelection}
+              zoneSelection={zoneSelection}
               center={mapCenter}
               zoom={mapZoom}
               onMarkerClick={handleMarkerClick}
